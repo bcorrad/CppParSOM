@@ -1,8 +1,5 @@
-#include <iostream>
-#include <cstdlib>     /* srand, rand */
-#include <ctime>
-#include "vector"
-#include "omp.h"
+#include <omp.h>
+#include "somNode.cpp"
 
 // Self Organizing Maps algorithm
 // 1. Each node's weights are initialized.
@@ -16,38 +13,49 @@
 //      the input vector. The closer a node is to the BMU, the more its weights get altered.
 // Repeat step 2 for N iterations.
 
-constexpr int FLOAT_MIN = 0;
-constexpr int FLOAT_MAX = 1;
+constexpr int ROWS = 100;
+constexpr int COLS = 100;
+constexpr int NTHREADS = 4;
 
-class somNode{
-private:
-	std::vector<double> weights_d;
-	double posX, posY;
-	int edgeL_i, edgeR_i, edgeT_i, edgeB_i; // edges of the node
-public:
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "openmp-use-default-none"
-	somNode(int left, int right, int top, int bottom, int weightsSize) : edgeL_i(left),
-                                                                         edgeR_i(right),
-                                                                         edgeT_i(top),
-                                                                         edgeB_i(bottom)
-	{
-		std::srand(std::time(nullptr));
-		// weights initialization
-		#pragma omp parallel for num_threads(4)
-			for (int i = 0; i < weightsSize; i++){
-				float randNum = FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
-				// std::cout << randNum << std::endl;
-				weights_d.push_back(randNum);
-			}
-		//calculate the node's center
-		posX = edgeL_i + (double)(edgeR_i - edgeL_i)/2;
-		posY = edgeT_i  + (double)(edgeB_i - edgeT_i)/2;
-	}
-	#pragma clang diagnostic pop
+class somTimer {
+	private:
+		double itime;
+		double ftime;
+		double exectime;
+	public:
+		somTimer() {};
+		double tic() {
+			this->itime = omp_get_wtime();
+			return itime;
+		};
+		double toc() {
+			this->ftime = omp_get_wtime();
+			this->exectime = this->ftime - this->itime;
+			printf("\n\nTime taken is %f", this->exectime);
+			return this->exectime;
+		};
 };
 
+
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "openmp-use-default-none"
 int main() {
-	somNode n = somNode(2, 3, 4, 5, 6);
+	somTimer timer = somTimer();
+	
+	timer.tic();
+	omp_set_num_threads(NTHREADS);
+	// Initializing The Weights
+	#pragma omp parallel for collapse(2)
+	for(int row = 0; row < ROWS; row++){
+		for(int col = 0; col < COLS; col++){
+			// std::cout << omp_get_thread_num() << std::endl;
+			somNode n = somNode(2, 2, 2, 2, 10);
+		}
+	}
+	timer.toc();
+	// Calculating the Best Matching Unit
 	return 0;
+	
 }
+#pragma clang diagnostic pop
