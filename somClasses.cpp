@@ -1,27 +1,19 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "openmp-use-default-none"
 
+#include "globals.h"
+#include "somTimer.cpp"
+
 #include <iostream>
 #include <cstdlib>     /* srand, rand */
 #include <cmath>
-#include <utility>
 #include <vector>
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <fstream>
 #include "algorithm"
 #include "iterator"
 #include "omp.h"
-
-constexpr int FLOAT_MIN = 0;
-constexpr int FLOAT_MAX = 1;
-constexpr int WEIGHT_SIZE = 4;
-
-//the number of epochs desired for the training
-constexpr int EPOCHS = 10000;
-//the value of the learning rate at the start of training
-constexpr double START_LR = 0.1;
 
 template <typename T>
 	std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
@@ -111,9 +103,10 @@ class somNode {
 		};
 		
 		void initWeights(int weightsSize) {
-//			#pragma omp parallel for
+			//#pragma omp parallel for
 				for(int i = 0; i < weightsSize; i++) {
-					float randNum = FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
+					float randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
+//					#pragma atomic write
 					weights_vd.push_back(randNum);
 				}
 		};
@@ -180,57 +173,54 @@ private:
 	std::vector<somNode> nodes_vs;
 public:
 	
-	explicit inputNodes(int nInput){
+	explicit inputNodes(int nInput, bool fromFile = false){
 		
-		std::string fname = "C:\\Users\\barba\\CLionProjects\\PPF_SOM\\iris.csv";
 		std::vector<double> content;
 		std::vector<double> row;
 		std::string line, word;
 		auto rowMax = (double) 0;
-		std::fstream file (fname, std::ios::in);
 		int id = 0;
-		if(file.is_open())
-		{
-			while(getline(file, line) && id < nInput)
+		if(fromFile) {
+			std::string fname = "C:\\Users\\barba\\CLionProjects\\PPF_SOM\\iris.csv";
+			std::fstream file (fname, std::ios::in);
+			if(file.is_open())
 			{
-				row.clear();
-				std::stringstream str(line);
-				while(getline(str, word, ',')){
-					if(std::stod(word) > rowMax) rowMax = std::stod(word);
-					row.push_back(std::stod(word));
+//			#pragma omp parallel
+				while(getline(file, line) && id < nInput)
+				{
+					row.clear();
+					std::stringstream str(line);
+					while(getline(str, word, ',')){
+						if(std::stod(word) > rowMax) rowMax = std::stod(word);
+						row.push_back(std::stod(word));
+					}
+					content = (row/rowMax);
+					
+					somNode n = somNode(id,
+					                    0,
+					                    0,
+										1,
+					                    //omp_get_thread_num(),
+					                    WEIGHT_SIZE);
+					n.weights_vd = content;
+					addNode(n);
+					id++;
 				}
-				content = (row/rowMax);
-				
+			}
+			else
+				std::cout << "Could not open the file" << std::endl;
+		}
+		else {
+			for(int i = 0; i < nInput; i++) {
 				somNode n = somNode(id,
 				                    0,
 				                    0,
-				                    omp_get_thread_num(),
+				                    1,//omp_get_thread_num(),
 				                    WEIGHT_SIZE);
-				n.weights_vd = content;
 				addNode(n);
+				id++;
 			}
 		}
-		else
-			std::cout << "Could not open the file" << std::endl;
-		
-		/*for(int i=0;i<content.size();i++)
-		{
-			for(int j=0;j<content[i].size();j++)
-			{
-				std::cout<<content[i][j]<<" ";
-			}
-			std::cout<<"\n";
-		}*/
-		
-//			for(int d = 0; d < nInput; d++) {
-//				somNode n = somNode(d,
-//				                    0,
-//				                    0,
-//				                    omp_get_thread_num(),
-//				                    WEIGHT_SIZE);
-//				n.weights_vd = content;
-//				addNode(n);
-//			}
 	};
 	
 	void addNode(somNode &node) {
@@ -265,28 +255,26 @@ class somGrid {
 		double winNodeDist_d;
 		
 		double somInitRadius;
-		double neighbRadius; // sigma0
+		double neighbRadius = (double) 1; // sigma0
 		double learnRate;
 	public:
 		somGrid()= default;
 		
 		somGrid(int rows, int cols) : somRows(rows), somCols(cols) {
 			int id = 0;
+//#pragma parallel
 			for(int r = 0; r < rows; r++) {
+//#pragma parallel for
 				for(int c = 0; c < cols; c++) {
 					somNode n = somNode(id,
 										r,
 										c,
-										omp_get_thread_num(),
+										1, //omp_get_thread_num(),
 										WEIGHT_SIZE);
 					addNode(n);
 					id++;
 				}
 			}
-		};
-		
-		double getNeighbRadius() const {
-			return neighbRadius;
 		};
 		
 		void addNode(somNode &node) {
@@ -328,6 +316,7 @@ class somGrid {
 		
 		void BMU(bool verbose = false) {
 			auto minDist = (double) 10000;
+//			#pragma parallel for
 			for(auto & nodes_v : nodes_vs) {
 				if(nodes_v.getDist() < minDist) {
 					winNodeId_i = nodes_v.getId();
@@ -360,19 +349,20 @@ class somGrid {
 		};
 		
 		void neighbExplorer(double radius) {
-			long double start = omp_get_wtime();
-			#pragma omp parallel for
+//			somTimer t = somTimer();
+//			t.tic();
+			double D = 0.0;
+//			#pragma omp parallel for
 				for(auto & node_v : nodes_vs) {
-					double D = bmuEuclideanDist(node_v);
+					D = bmuEuclideanDist(node_v);
 					if(D < radius)
 						node_v.setIsNb(true);
 				}
-			long double end = omp_get_wtime();
-			printf("Work took %ld seconds\n", end - start);
+//			t.toc("neighbExplorer", false);
 		};
 		
 		void adjustWeights(somNode inputnode, double lr, bool verbose = false) {
-			#pragma omp parallel for
+			//#pragma omp parallel for
 				for(auto & node_v : nodes_vs) {
 					if(node_v.getIsNb()) {
 						if(verbose){
@@ -393,7 +383,7 @@ class somGrid {
 		};
 	
 		void resetGrid() {
-			#pragma omp parallel for
+//			#pragma omp parallel for
 				for(auto & node_v : nodes_vs){
 					node_v.setIsNb(false);
 				}
@@ -425,16 +415,14 @@ class somGrid {
 			somInitRadius = (double) std::max(somRows, somCols) / 2;
 			
 			for(int epoch = 0; epoch < EPOCHS; epoch++) {
-				if(epoch % (EPOCHS/10) == 0) std::cout << "========= EPOCH "
-				                                       << epoch << "/" << EPOCHS
-				                                       << " =========" << std::endl;
+				std::cout << "========= EPOCH " << epoch << "/" << EPOCHS << " =========" << std::endl;
 				
 				// Calculate the width of the neighbourhood for this timestep
 				neighbRadius = somInitRadius * exp(-(double)epoch/timeConst);
 				// Reduce the learning rate
 				learnRate = START_LR * exp(-(double)epoch/EPOCHS);
 				
-				for(auto & inputnode : inputs.getNodes(0)){
+				for(auto & inputnode : inputs.getNodes(false)){
 					// Calculating the Best Matching Unit
 					inputVsGrid(inputnode);
 					// BMU neighborhood exploration
@@ -442,16 +430,14 @@ class somGrid {
 					// Adjust weights
 					adjustWeights(inputnode, learnRate);
 				}
-				std::cout << "=================================" << std::endl;
-				printGrid();
+				
 				resetGrid();
 			}
 			return true;
 		};
 		
 		~somGrid()= default;
-	
-	
+		
 };
 
 //#pragma clang diagnostic pop

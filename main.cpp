@@ -1,7 +1,11 @@
+
+#include "globals.h"
+#include "somClasses.cpp"
+
 #include <omp.h>
 #include <iostream>
 #include <string>
-#include "somClasses.cpp"
+#include "chrono"
 
 // Self Organizing Maps algorithm
 // 1. Each node's weights are initialized.
@@ -15,44 +19,6 @@
 //      the input std::vector. The closer a node is to the BMU, the more its weights get altered.
 // Repeat step 2 for N iterations.
 
-constexpr int ROWS = 3;
-constexpr int COLS = 3;
-constexpr int NTHREADS = 4;
-// number of weights each node must contain. One for each element of
-// the input std::vector. In this example it is 3 because a color is
-// represented by its red, green and blue components. (RGB)
-constexpr int INPUTDIM = 3;
-//the number of epochs desired for the training
-//constexpr int EPOCHS = 10;
-////the value of the learning rate at the start of training
-//constexpr double START_LR = 0.1;
-
-class somTimer {
-	private:
-		double itime_d;
-		double ftime_d;
-		double exectime_d;
-	public:
-		somTimer(): itime_d((double) 0), ftime_d((double) 0), exectime_d((double) 0) {};
-		
-		double tic() {
-			this->itime_d = omp_get_wtime();
-			return itime_d;
-		};
-		
-		double toc() {
-			this->ftime_d = omp_get_wtime();
-			return this->ftime_d;
-		};
-		
-		double execTime() {
-			this->exectime_d = this->ftime_d - this->itime_d;
-			printf("\n\nTime taken is %f", this->exectime_d);
-			return this->exectime_d;
-		};
-};
-
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "openmp-use-default-none"
 int main() {
@@ -60,14 +26,19 @@ int main() {
 	std::srand((unsigned int)time(NULL));
 	// Initializing timer
 	somTimer timer = somTimer();
-	inputNodes nodesInput = inputNodes(INPUTDIM);
+	inputNodes nodesInput = inputNodes(N_INPUTS);
 	somGrid nodesGrid = somGrid(ROWS, COLS);
-	
+	omp_set_dynamic(1);
+	omp_set_num_threads(N_THREADS);
+	std::cout << "NUM_THREADS = " << omp_get_num_threads() << std::endl;
+	std::cout << "MAX_THREADS = " << omp_get_max_threads() << std::endl;
+	std::cout << "NODESGRID AT t=O" << std::endl;
+	nodesGrid.printGrid();
 	timer.tic();
-	omp_set_num_threads(NTHREADS);
 	nodesGrid.somTrain(nodesInput);
-	timer.toc();
-	timer.execTime();
+	timer.toc("", true);
+	std::cout << "NODESGRID AT t=100" << std::endl;
+	nodesGrid.printGrid();
 	
 	return 0;
 }
