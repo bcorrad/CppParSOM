@@ -17,7 +17,7 @@ public:
 		this->ftime_d = std::chrono::steady_clock::now();
 //		this->exectime_ld = std::chrono::duration_cast<std::chrono::microseconds>(ftime_d - itime_tp).count();
 		if(verbose) std::cout << "EXECUTION TIME " << optional << " = " <<
-		                      std::chrono::duration_cast<std::chrono::microseconds>(ftime_d - itime_tp).count() << " [ms]" << std::endl;
+		                      std::chrono::duration_cast<std::chrono::milliseconds>(ftime_d - itime_tp).count() << " [ms]" << std::endl;
 	};
 	
 };

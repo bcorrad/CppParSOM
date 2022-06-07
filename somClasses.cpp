@@ -260,21 +260,24 @@ class somGrid {
 	public:
 		somGrid()= default;
 		
-		somGrid(int rows, int cols) : somRows(rows), somCols(cols) {
+		somGrid(int rows, int cols) {
+			this->somRows = rows;
+			this->somCols = cols;
 			int id = 0;
-//#pragma parallel
-			for(int r = 0; r < rows; r++) {
-//#pragma parallel for
-				for(int c = 0; c < cols; c++) {
-					somNode n = somNode(id,
-										r,
-										c,
-										1, //omp_get_thread_num(),
-										WEIGHT_SIZE);
-					addNode(n);
-					id++;
+//			#pragma omp parallel private(rows, cols) shared(nodes_vs)
+				for(int r = 0; r < rows; r++) {
+//				#pragma omp for
+					for(int c = 0; c < cols; c++) {
+						somNode n = somNode(id,
+											r,
+											c,
+											1, //omp_get_thread_num(),
+											WEIGHT_SIZE);
+//						addNode(n);
+						nodes_vs.push_back(n);
+						id++;
+					}
 				}
-			}
 		};
 		
 		void addNode(somNode &node) {
@@ -297,34 +300,36 @@ class somGrid {
 		};
 		
 		void inputVsGrid(somNode inputNode, bool verbose = false) {
-			for(auto & nodes_v : nodes_vs) {
-				double dist = nodes_v.euclDistance(inputNode.getWeights());
-				nodes_v.setDist(dist);
-				if(verbose) {
-					std::cout << "INPUT NODE "
-					          << inputNode.getId()
-					          << " HAS DISTANCE -> "
-					          << nodes_v.getDist()
-					          << " WRT NODE ("
-					          << nodes_v.getPosX() << ","
-					          << nodes_v.getPosY() << ")"
-					          << std::endl;
+			#pragma omp parallel for
+				for(auto & nodes_v : nodes_vs) {
+					double dist = nodes_v.euclDistance(inputNode.getWeights());
+					nodes_v.setDist(dist);
+					if(verbose) {
+						std::cout << "INPUT NODE "
+						          << inputNode.getId()
+						          << " HAS DISTANCE -> "
+						          << nodes_v.getDist()
+						          << " WRT NODE ("
+						          << nodes_v.getPosX() << ","
+						          << nodes_v.getPosY() << ")"
+						          << std::endl;
+					}
 				}
-			}
 			BMU();
 		};
 		
 		void BMU(bool verbose = false) {
 			auto minDist = (double) 10000;
-//			#pragma parallel for
-			for(auto & nodes_v : nodes_vs) {
-				if(nodes_v.getDist() < minDist) {
-					winNodeId_i = nodes_v.getId();
-					winNodeX_i = nodes_v.getPosX();
-					winNodeY_i = nodes_v.getPosY();
-					winNodeDist_d = nodes_v.getDist();
+			#pragma parallel for
+				for(auto & nodes_v : nodes_vs) {
+					if(nodes_v.getDist() < minDist) {
+						winNodeId_i = nodes_v.getId();
+						winNodeX_i = nodes_v.getPosX();
+						winNodeY_i = nodes_v.getPosY();
+						winNodeDist_d = nodes_v.getDist();
+						minDist = nodes_v.getDist();
+					}
 				}
-			}
 			if(verbose) {
 				std::cout << "************************" << std::endl;
 				std::cout << "MIN DIST IS "
@@ -352,7 +357,7 @@ class somGrid {
 //			somTimer t = somTimer();
 //			t.tic();
 			double D = 0.0;
-//			#pragma omp parallel for
+			#pragma omp parallel for
 				for(auto & node_v : nodes_vs) {
 					D = bmuEuclideanDist(node_v);
 					if(D < radius)
@@ -362,7 +367,7 @@ class somGrid {
 		};
 		
 		void adjustWeights(somNode inputnode, double lr, bool verbose = false) {
-			//#pragma omp parallel for
+			#pragma omp parallel for
 				for(auto & node_v : nodes_vs) {
 					if(node_v.getIsNb()) {
 						if(verbose){
@@ -390,6 +395,7 @@ class somGrid {
 		};
 		
 		void printGrid() {
+//			std::cout << "miao" << std::endl;
 			for(auto & node : nodes_vs) {
 				std::cout << node.getWeights() << std::endl;
 			}
@@ -409,10 +415,11 @@ class somGrid {
 			 */
 			
 			learnRate = START_LR;
-			// Time constant (lambda) used in the calculation of the neighbourhood width
-			double timeConst = EPOCHS/log(neighbRadius);
+
 			// Calculate the biggest possible initial radius (half of width either height (delta_0))
 			somInitRadius = (double) std::max(somRows, somCols) / 2;
+			// Time constant (lambda) used in the calculation of the neighbourhood width
+			double timeConst = EPOCHS/log(somInitRadius);
 			
 			for(int epoch = 0; epoch < EPOCHS; epoch++) {
 				std::cout << "========= EPOCH " << epoch << "/" << EPOCHS << " =========" << std::endl;

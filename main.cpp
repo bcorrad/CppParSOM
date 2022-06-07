@@ -18,9 +18,10 @@
 // 5. Each neighbouring node's (the nodes found in step 4) weights are adjusted to make them more like
 //      the input std::vector. The closer a node is to the BMU, the more its weights get altered.
 // Repeat step 2 for N iterations.
+//
+//#pragma clang diagnostic push
+//#pragma ide diagnostic ignored "openmp-use-default-none"
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "openmp-use-default-none"
 int main() {
 	
 	std::srand((unsigned int)time(NULL));
@@ -28,18 +29,19 @@ int main() {
 	somTimer timer = somTimer();
 	inputNodes nodesInput = inputNodes(N_INPUTS);
 	somGrid nodesGrid = somGrid(ROWS, COLS);
-	omp_set_dynamic(1);
+//	omp_set_dynamic(0);
 	omp_set_num_threads(N_THREADS);
 	std::cout << "NUM_THREADS = " << omp_get_num_threads() << std::endl;
 	std::cout << "MAX_THREADS = " << omp_get_max_threads() << std::endl;
 	std::cout << "NODESGRID AT t=O" << std::endl;
-	nodesGrid.printGrid();
+//	nodesGrid.printGrid();
+//	system("PAUSE");
 	timer.tic();
 	nodesGrid.somTrain(nodesInput);
 	timer.toc("", true);
 	std::cout << "NODESGRID AT t=100" << std::endl;
-	nodesGrid.printGrid();
+//	nodesGrid.printGrid();
 	
 	return 0;
 }
-#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
