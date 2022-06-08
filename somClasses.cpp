@@ -1,3 +1,4 @@
+
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "openmp-use-default-none"
 
@@ -103,17 +104,18 @@ class somNode {
 		};
 		
 		void initWeights(int weightsSize) {
-			//#pragma omp parallel for num_threads(N_THREADS)
+//			omp_set_num_threads(N_THREADS);
+//			#pragma omp parallel for
 				for(int i = 0; i < weightsSize; i++) {
 					float randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
-//					#pragma atomic write
 					weights_vd.push_back(randNum);
 				}
 		};
 		
 		double euclDistance(std::vector<double> inputWeights_vd) {
 			auto distance = (double) 0;
-//			#pragma omp parallel for num_threads(N_THREADS)
+			omp_set_num_threads(N_THREADS);
+			#pragma omp parallel for
 				for(int i = 0; i < weights_vd.size(); ++i) {
 					distance += (inputWeights_vd[i] - weights_vd[i]) * (inputWeights_vd[i] - weights_vd[i]);
 				}
@@ -305,7 +307,8 @@ class somGrid {
 		void inputVsGrid(somNode inputNode, bool verbose = false) {
 			
 			t_inputVsGrid.tic();
-			#pragma omp parallel for num_threads(N_THREADS)
+			omp_set_num_threads(N_THREADS);
+			#pragma omp parallel for
 				for(auto & nodes_v : nodes_vs) {
 					double dist = nodes_v.euclDistance(inputNode.getWeights());
 					nodes_v.setDist(dist);
@@ -328,7 +331,8 @@ class somGrid {
 			auto minDist = (double) 10000;
 			
 			t_BMU.tic();
-			#pragma parallel for
+//			omp_set_num_threads(N_THREADS);
+//			#pragma omp parallel for
 				for(auto & nodes_v : nodes_vs) {
 					if(nodes_v.getDist() < minDist) {
 						winNodeId_i = nodes_v.getId();
@@ -366,7 +370,9 @@ class somGrid {
 
 			double D = 0.0;
 			t_neighbExplorer.tic();
-			#pragma omp parallel for num_threads(N_THREADS)
+			
+//			omp_set_num_threads(N_THREADS);
+//			#pragma omp parallel for
 				for(auto & node_v : nodes_vs) {
 					D = bmuEuclideanDist(node_v);
 					if(D < radius)
@@ -376,7 +382,8 @@ class somGrid {
 		};
 		
 		void adjustWeights(somNode inputnode, double lr, bool verbose = false) {
-//			#pragma omp parallel for num_threads(N_THREADS)
+//			omp_set_num_threads(N_THREADS);
+//			#pragma omp parallel for
 				for(auto & node_v : nodes_vs) {
 					if(node_v.getIsNb()) {
 						if(verbose){
@@ -397,7 +404,8 @@ class somGrid {
 		};
 	
 		void resetGrid() {
-//			#pragma omp parallel for num_threads(N_THREADS)
+//			omp_set_num_threads(N_THREADS);
+//			#pragma omp parallel for
 				for(auto & node_v : nodes_vs){
 					node_v.setIsNb(false);
 				}
@@ -453,7 +461,7 @@ class somGrid {
 					// Adjust weights
 					adjustWeights(inputnode, learnRate);
 				}
-				printGrid();
+//				printGrid();
 				paralTime += t_neighbExplorer.getDeltaT() + t_BMU.getDeltaT() + t_inputVsGrid.getDeltaT();
 				resetGrid();
 			}
@@ -464,4 +472,4 @@ class somGrid {
 		
 };
 
-//#pragma clang diagnostic pop
+#pragma clang diagnostic pop

@@ -51,19 +51,19 @@ build cmake_object_order_depends_target_untitled: phony || CMakeFiles/untitled.d
 
 build CMakeFiles/untitled.dir/main.cpp.obj: CXX_COMPILER__untitled_Debug C$:/Users/barba/CLionProjects/PPF_SOM/main.cpp || cmake_object_order_depends_target_untitled
   DEP_FILE = CMakeFiles\untitled.dir\main.cpp.obj.d
-  FLAGS = -std=c++11 -fopenmp -lgomp -g -std=gnu++11
+  FLAGS = -std=c++11 -lgomp -std=c++11 -fopenmp -lgomp -g -std=gnu++14
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir
 
 build CMakeFiles/untitled.dir/somClasses.cpp.obj: CXX_COMPILER__untitled_Debug C$:/Users/barba/CLionProjects/PPF_SOM/somClasses.cpp || cmake_object_order_depends_target_untitled
   DEP_FILE = CMakeFiles\untitled.dir\somClasses.cpp.obj.d
-  FLAGS = -std=c++11 -fopenmp -lgomp -g -std=gnu++11
+  FLAGS = -std=c++11 -lgomp -std=c++11 -fopenmp -lgomp -g -std=gnu++14
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir
 
 build CMakeFiles/untitled.dir/somTimer.cpp.obj: CXX_COMPILER__untitled_Debug C$:/Users/barba/CLionProjects/PPF_SOM/somTimer.cpp || cmake_object_order_depends_target_untitled
   DEP_FILE = CMakeFiles\untitled.dir\somTimer.cpp.obj.d
-  FLAGS = -std=c++11 -fopenmp -lgomp -g -std=gnu++11
+  FLAGS = -std=c++11 -lgomp -std=c++11 -fopenmp -lgomp -g -std=gnu++14
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir
 
@@ -76,7 +76,7 @@ build CMakeFiles/untitled.dir/somTimer.cpp.obj: CXX_COMPILER__untitled_Debug C$:
 # Link the executable untitled.exe
 
 build untitled.exe: CXX_EXECUTABLE_LINKER__untitled_Debug CMakeFiles/untitled.dir/main.cpp.obj CMakeFiles/untitled.dir/somClasses.cpp.obj CMakeFiles/untitled.dir/somTimer.cpp.obj
-  FLAGS = -std=c++11 -fopenmp -lgomp -g
+  FLAGS = -std=c++11 -lgomp -std=c++11 -fopenmp -lgomp -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\untitled.dir
   POST_BUILD = cd .
