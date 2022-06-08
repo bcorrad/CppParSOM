@@ -103,7 +103,7 @@ class somNode {
 		};
 		
 		void initWeights(int weightsSize) {
-			//#pragma omp parallel for
+			//#pragma omp parallel for num_threads(N_THREADS)
 				for(int i = 0; i < weightsSize; i++) {
 					float randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
 //					#pragma atomic write
@@ -113,7 +113,7 @@ class somNode {
 		
 		double euclDistance(std::vector<double> inputWeights_vd) {
 			auto distance = (double) 0;
-//			#pragma omp parallel for
+//			#pragma omp parallel for num_threads(N_THREADS)
 				for(int i = 0; i < weights_vd.size(); ++i) {
 					distance += (inputWeights_vd[i] - weights_vd[i]) * (inputWeights_vd[i] - weights_vd[i]);
 				}
@@ -250,6 +250,8 @@ class somGrid {
 	private:
 		int somRows, somCols;
 		std::vector<somNode> nodes_vs;
+		somTimer t_neighbExplorer, t_inputVsGrid, t_BMU;
+		long long paralTime;
 		
 		int winNodeId_i, winNodeX_i, winNodeY_i;
 		double winNodeDist_d;
@@ -261,23 +263,24 @@ class somGrid {
 		somGrid()= default;
 		
 		somGrid(int rows, int cols) {
+			paralTime = 0;
+			t_BMU = somTimer("BMU");
+			t_inputVsGrid = somTimer("inputVsGrid");
+			t_neighbExplorer = somTimer("neighbExplorer");
 			this->somRows = rows;
 			this->somCols = cols;
 			int id = 0;
-//			#pragma omp parallel private(rows, cols) shared(nodes_vs)
-				for(int r = 0; r < rows; r++) {
-//				#pragma omp for
-					for(int c = 0; c < cols; c++) {
-						somNode n = somNode(id,
-											r,
-											c,
-											1, //omp_get_thread_num(),
-											WEIGHT_SIZE);
-//						addNode(n);
-						nodes_vs.push_back(n);
-						id++;
-					}
+			for(int r = 0; r < rows; r++) {
+				for(int c = 0; c < cols; c++) {
+					somNode n = somNode(id,
+										r,
+										c,
+										1, //omp_get_thread_num(),
+										WEIGHT_SIZE);
+					nodes_vs.push_back(n);
+					id++;
 				}
+			}
 		};
 		
 		void addNode(somNode &node) {
@@ -300,7 +303,9 @@ class somGrid {
 		};
 		
 		void inputVsGrid(somNode inputNode, bool verbose = false) {
-			#pragma omp parallel for
+			
+			t_inputVsGrid.tic();
+			#pragma omp parallel for num_threads(N_THREADS)
 				for(auto & nodes_v : nodes_vs) {
 					double dist = nodes_v.euclDistance(inputNode.getWeights());
 					nodes_v.setDist(dist);
@@ -315,11 +320,14 @@ class somGrid {
 						          << std::endl;
 					}
 				}
+				t_inputVsGrid.toc();
 			BMU();
 		};
 		
 		void BMU(bool verbose = false) {
 			auto minDist = (double) 10000;
+			
+			t_BMU.tic();
 			#pragma parallel for
 				for(auto & nodes_v : nodes_vs) {
 					if(nodes_v.getDist() < minDist) {
@@ -330,6 +338,7 @@ class somGrid {
 						minDist = nodes_v.getDist();
 					}
 				}
+			t_BMU.toc();
 			if(verbose) {
 				std::cout << "************************" << std::endl;
 				std::cout << "MIN DIST IS "
@@ -354,20 +363,20 @@ class somGrid {
 		};
 		
 		void neighbExplorer(double radius) {
-//			somTimer t = somTimer();
-//			t.tic();
+
 			double D = 0.0;
-			#pragma omp parallel for
+			t_neighbExplorer.tic();
+			#pragma omp parallel for num_threads(N_THREADS)
 				for(auto & node_v : nodes_vs) {
 					D = bmuEuclideanDist(node_v);
 					if(D < radius)
 						node_v.setIsNb(true);
 				}
-//			t.toc("neighbExplorer", false);
+			t_neighbExplorer.toc();
 		};
 		
 		void adjustWeights(somNode inputnode, double lr, bool verbose = false) {
-			#pragma omp parallel for
+//			#pragma omp parallel for num_threads(N_THREADS)
 				for(auto & node_v : nodes_vs) {
 					if(node_v.getIsNb()) {
 						if(verbose){
@@ -388,17 +397,24 @@ class somGrid {
 		};
 	
 		void resetGrid() {
-//			#pragma omp parallel for
+//			#pragma omp parallel for num_threads(N_THREADS)
 				for(auto & node_v : nodes_vs){
 					node_v.setIsNb(false);
 				}
 		};
 		
 		void printGrid() {
-//			std::cout << "miao" << std::endl;
-			for(auto & node : nodes_vs) {
-				std::cout << node.getWeights() << std::endl;
-			}
+			t_BMU.printDeltaT();
+			t_inputVsGrid.printDeltaT();
+			t_neighbExplorer.printDeltaT();
+			
+//			for(auto & node : nodes_vs) {
+//				std::cout << node.getWeights() << std::endl;
+//			}
+		};
+		
+		long long getParalTime() {
+			return paralTime;
 		};
 		
 		bool somTrain(inputNodes inputs) {
@@ -437,7 +453,8 @@ class somGrid {
 					// Adjust weights
 					adjustWeights(inputnode, learnRate);
 				}
-				
+				printGrid();
+				paralTime += t_neighbExplorer.getDeltaT() + t_BMU.getDeltaT() + t_inputVsGrid.getDeltaT();
 				resetGrid();
 			}
 			return true;
