@@ -9,7 +9,7 @@ long double speedUp(long long paralTime_lld, long long totalTime_lld, int nThr) 
 	/// - f is the fraction of the algorithm that can be parallelized.
 	/// - N_workers is the number of threads currently used (a.k.a. processors).
 	long double f = (long double) paralTime_lld/(long double) totalTime_lld;
-	int nWorkers = nThr;
+	auto nWorkers = (double) nThr;
 	auto speedup = 1/((1-f)+(f/(long double) nWorkers));
 	return speedup;
 }
@@ -19,10 +19,10 @@ long double efficiency(long long paralTime_lld, long long totalTime_lld, int nTh
 	/// Where:
 	/// - E(P) is the efficiency.
 	/// - T_1 is the serial time.
-	/// -T_P is the parallel time.
+	/// - T_P is the parallel time.
 	/// - P is the number of processors.
 	int nWorkers = nThr;
-	auto efficiency = totalTime_lld/(paralTime_lld*nWorkers);
+	auto efficiency = (totalTime_lld-paralTime_lld)/(paralTime_lld*nWorkers);
 	return efficiency;
 }
 

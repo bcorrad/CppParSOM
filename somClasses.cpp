@@ -30,9 +30,15 @@ template <typename T>
 template <typename T>
 	std::vector<T> operator -(const std::vector<T>& v1, const std::vector<T>& v2)
 	{
-		std::vector<T> result_v;
-		for(int i = 0; i < v1.size(); i++) {
-			result_v.push_back(v1[i]-v2[i]);
+		int i;
+		int n_per_thread = v1.size()/N_THREADS;
+		std::vector<T> result_v(v1.size());
+//		omp_set_num_threads(N_THREADS);
+//		#pragma omp parallel for shared(result_v) private(i) schedule(static, n_per_thread)
+		for(i = 0; i < v1.size(); i++) {
+			result_v[i] = v1[i]-v2[i];
+			// Which thread am I? Show who works on what for this samll example
+//			printf("Thread %d works on element%d\n", omp_get_thread_num(), i);
 		}
 		return result_v;
 	}
@@ -40,9 +46,13 @@ template <typename T>
 template <typename T>
 	std::vector<T> operator *(const T factor, const std::vector<T>& v)
 	{
-		std::vector<T> result_v;
-		for(int i = 0; i < v.size(); i++) {
-			result_v.push_back(v[i]*factor);
+		int i;
+		int n_per_thread = v.size()/N_THREADS;
+		std::vector<T> result_v(v.size());
+//		omp_set_num_threads(N_THREADS);
+//		#pragma omp parallel for shared(result_v) private(i) schedule(static, n_per_thread)
+		for(i = 0; i < v.size(); i++) {
+			result_v[i] = v[i]*factor;
 		}
 		return result_v;
 	}
@@ -51,9 +61,13 @@ template <typename T>
 template <typename T>
 	std::vector<T> operator /(const std::vector<T>& v, const T factor)
 	{
-		std::vector<T> result_v;
-		for(int i = 0; i < v.size(); i++) {
-			result_v.push_back(v[i]/factor);
+		int i;
+		int n_per_thread = v.size()/N_THREADS;
+		std::vector<T> result_v(v.size());
+//		omp_set_num_threads(N_THREADS);
+//		#pragma omp parallel for shared(result_v) private(i) schedule(static, n_per_thread)
+		for(i = 0; i < v.size(); i++) {
+			result_v[i] = v[i]/factor;
 		}
 		return result_v;
 	}
@@ -104,19 +118,20 @@ class somNode {
 		};
 		
 		void initWeights(int weightsSize) {
-//			omp_set_num_threads(N_THREADS);
-//			#pragma omp parallel for
+			float randNum;
 				for(int i = 0; i < weightsSize; i++) {
-					float randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
+					randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
 					weights_vd.push_back(randNum);
 				}
 		};
 		
 		double euclDistance(std::vector<double> inputWeights_vd) {
 			auto distance = (double) 0;
+			int i;
+			int n_per_thread = inputWeights_vd.size()/N_THREADS;
 			omp_set_num_threads(N_THREADS);
-			#pragma omp parallel for
-				for(int i = 0; i < weights_vd.size(); ++i) {
+			#pragma omp parallel for shared(distance) private(i) schedule(static, n_per_thread)
+				for(i = 0; i < weights_vd.size(); ++i) {
 					distance += (inputWeights_vd[i] - weights_vd[i]) * (inputWeights_vd[i] - weights_vd[i]);
 				}
 			return sqrt(distance);
@@ -187,7 +202,6 @@ public:
 			std::fstream file (fname, std::ios::in);
 			if(file.is_open())
 			{
-//			#pragma omp parallel
 				while(getline(file, line) && id < nInput)
 				{
 					row.clear();
@@ -250,7 +264,7 @@ public:
 
 class somGrid {
 	private:
-		int somRows, somCols;
+		int somGRID_ROWS, somGRID_COLS;
 		std::vector<somNode> nodes_vs;
 		somTimer t_neighbExplorer, t_inputVsGrid, t_BMU;
 		long long paralTime;
@@ -264,16 +278,16 @@ class somGrid {
 	public:
 		somGrid()= default;
 		
-		somGrid(int rows, int cols) {
+		somGrid(int GRID_ROWS, int GRID_COLS) {
 			paralTime = 0;
 			t_BMU = somTimer("BMU");
 			t_inputVsGrid = somTimer("inputVsGrid");
 			t_neighbExplorer = somTimer("neighbExplorer");
-			this->somRows = rows;
-			this->somCols = cols;
+			this->somGRID_ROWS = GRID_ROWS;
+			this->somGRID_COLS = GRID_COLS;
 			int id = 0;
-			for(int r = 0; r < rows; r++) {
-				for(int c = 0; c < cols; c++) {
+			for(int r = 0; r < GRID_ROWS; r++) {
+				for(int c = 0; c < GRID_COLS; c++) {
 					somNode n = somNode(id,
 										r,
 										c,
@@ -305,43 +319,43 @@ class somGrid {
 		};
 		
 		void inputVsGrid(somNode inputNode, bool verbose = false) {
-			
 			t_inputVsGrid.tic();
 			omp_set_num_threads(N_THREADS);
 			#pragma omp parallel for
-				for(auto & nodes_v : nodes_vs) {
-					double dist = nodes_v.euclDistance(inputNode.getWeights());
-					nodes_v.setDist(dist);
-					if(verbose) {
-						std::cout << "INPUT NODE "
-						          << inputNode.getId()
-						          << " HAS DISTANCE -> "
-						          << nodes_v.getDist()
-						          << " WRT NODE ("
-						          << nodes_v.getPosX() << ","
-						          << nodes_v.getPosY() << ")"
-						          << std::endl;
-					}
+			for(auto & nodes_v : nodes_vs) {
+				double dist = nodes_v.euclDistance(inputNode.getWeights());
+				nodes_v.setDist(dist);
+				if(verbose) {
+					std::cout << "INPUT NODE "
+					          << inputNode.getId()
+					          << " HAS DISTANCE -> "
+					          << nodes_v.getDist()
+					          << " WRT NODE ("
+					          << nodes_v.getPosX() << ","
+					          << nodes_v.getPosY() << ")"
+					          << std::endl;
 				}
-				t_inputVsGrid.toc();
+			}
+			t_inputVsGrid.toc();
 			BMU();
 		};
 		
 		void BMU(bool verbose = false) {
 			auto minDist = (double) 10000;
-			
+			int i;
+			int n_per_thread = nodes_vs.size()/N_THREADS;
 			t_BMU.tic();
 //			omp_set_num_threads(N_THREADS);
-//			#pragma omp parallel for
-				for(auto & nodes_v : nodes_vs) {
-					if(nodes_v.getDist() < minDist) {
-						winNodeId_i = nodes_v.getId();
-						winNodeX_i = nodes_v.getPosX();
-						winNodeY_i = nodes_v.getPosY();
-						winNodeDist_d = nodes_v.getDist();
-						minDist = nodes_v.getDist();
-					}
+//			#pragma omp parallel for shared(winNodeY_i, winNodeX_i, winNodeId_i, winNodeDist_d, minDist) private(i) schedule(static, n_per_thread)
+			for(i = 0; i < nodes_vs.size(); i++) {
+				if(nodes_vs[i].getDist() < minDist) {
+					winNodeId_i = nodes_vs[i].getId();
+					winNodeX_i = nodes_vs[i].getPosX();
+					winNodeY_i = nodes_vs[i].getPosY();
+					winNodeDist_d = nodes_vs[i].getDist();
+					minDist = nodes_vs[i].getDist();
 				}
+			}
 			t_BMU.toc();
 			if(verbose) {
 				std::cout << "************************" << std::endl;
@@ -367,58 +381,57 @@ class somGrid {
 		};
 		
 		void neighbExplorer(double radius) {
-
 			double D = 0.0;
 			t_neighbExplorer.tic();
-			
 //			omp_set_num_threads(N_THREADS);
 //			#pragma omp parallel for
-				for(auto & node_v : nodes_vs) {
-					D = bmuEuclideanDist(node_v);
-					if(D < radius)
-						node_v.setIsNb(true);
-				}
+			for(auto & node_v : nodes_vs) {
+				D = bmuEuclideanDist(node_v);
+				if(D < radius)
+					node_v.setIsNb(true);
+			}
 			t_neighbExplorer.toc();
 		};
 		
 		void adjustWeights(somNode inputnode, double lr, bool verbose = false) {
-//			omp_set_num_threads(N_THREADS);
-//			#pragma omp parallel for
-				for(auto & node_v : nodes_vs) {
-					if(node_v.getIsNb()) {
-						if(verbose){
-							std::cout << "WEIGHTS OF NODE ID " << node_v.getId() << " BEFORE ADJUSTMENT" << std::endl;
-							std::cout << node_v.getWeights() << std::endl;
-						}
-						// Calculate by how much its weights are adjusted
-						double adjustRate = exp(-(getWinNodeDist()) / (2*(neighbRadius*neighbRadius)));
-						auto miao = node_v.getWeights() + lr * adjustRate * (inputnode.getWeights() - node_v.getWeights());
-						node_v.weights_vd = miao;
-						if(verbose){
-							std::cout << "WEIGHTS AFTER ADJUSTMENT" << std::endl;
-							std::cout << node_v.getWeights() << std::endl;
-							std::cout << "************************" << std::endl;
-						}
+			int i;
+			int n_per_thread = nodes_vs.size()/N_THREADS;
+			double adjustRate;
+			omp_set_num_threads(N_THREADS);
+			#pragma omp parallel for private(i, winNodeDist_d) schedule(static, n_per_thread)
+			for(i = 0; i < nodes_vs.size(); i++) {
+				if(nodes_vs[i].getIsNb()) {
+					if(verbose){
+						std::cout << "WEIGHTS OF NODE ID " << nodes_vs[i].getId() << " BEFORE ADJUSTMENT" << std::endl;
+						std::cout << nodes_vs[i].getWeights() << std::endl;
+					}
+					// Calculate by how much its weights are adjusted
+					adjustRate = exp(-(winNodeDist_d) / (2*(neighbRadius*neighbRadius)));
+					auto miao = nodes_vs[i].getWeights() + lr * adjustRate * (inputnode.getWeights() - nodes_vs[i].getWeights());
+					nodes_vs[i].weights_vd = miao;
+					if(verbose){
+						std::cout << "WEIGHTS AFTER ADJUSTMENT" << std::endl;
+						std::cout << nodes_vs[i].getWeights() << std::endl;
+						std::cout << "************************" << std::endl;
 					}
 				}
+			}
 		};
 	
 		void resetGrid() {
-//			omp_set_num_threads(N_THREADS);
-//			#pragma omp parallel for
-				for(auto & node_v : nodes_vs){
-					node_v.setIsNb(false);
-				}
+			int i;
+			int n_per_thread = nodes_vs.size()/N_THREADS;
+			omp_set_num_threads(N_THREADS);
+			#pragma omp parallel for private(i) schedule(static, n_per_thread)
+			for(i = 0; i < nodes_vs.size(); i++){
+				nodes_vs[i].setIsNb(false);
+			}
 		};
 		
-		void printGrid() {
+		void printGridStats() {
 			t_BMU.printDeltaT();
 			t_inputVsGrid.printDeltaT();
 			t_neighbExplorer.printDeltaT();
-			
-//			for(auto & node : nodes_vs) {
-//				std::cout << node.getWeights() << std::endl;
-//			}
 		};
 		
 		long long getParalTime() {
@@ -441,7 +454,7 @@ class somGrid {
 			learnRate = START_LR;
 
 			// Calculate the biggest possible initial radius (half of width either height (delta_0))
-			somInitRadius = (double) std::max(somRows, somCols) / 2;
+			somInitRadius = (double) std::max(somGRID_ROWS, somGRID_COLS) / 2;
 			// Time constant (lambda) used in the calculation of the neighbourhood width
 			double timeConst = EPOCHS/log(somInitRadius);
 			
@@ -461,7 +474,7 @@ class somGrid {
 					// Adjust weights
 					adjustWeights(inputnode, learnRate);
 				}
-//				printGrid();
+				printGridStats();
 				paralTime += t_neighbExplorer.getDeltaT() + t_BMU.getDeltaT() + t_inputVsGrid.getDeltaT();
 				resetGrid();
 			}

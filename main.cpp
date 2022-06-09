@@ -3,6 +3,8 @@
 #include "metrics.h"
 #include "somClasses.cpp"
 #include <iostream>
+#include <fstream>
+#include "iomanip"
 #include <string>
 #include "chrono"
 
@@ -27,34 +29,51 @@ int main() {
 	// Initializing timer
 	somTimer timer = somTimer();
 	inputNodes nodesInput = inputNodes(N_INPUTS);
-	somGrid nodesGrid = somGrid(ROWS, COLS);
-//	omp_set_dynamic(0);
-
-//	std::cout << "NUM_THREADS = " << omp_get_num_threads() << std::endl;
-//	std::cout << "MAX_THREADS = " << omp_get_max_threads() << std::endl;
-//	std::cout << "NODESGRID AT t=O" << std::endl;
-//	nodesGrid.printGrid();
-//	system("PAUSE");
-//	for(int i = 1; i <= N_THREADS; i++) {
-	int i = N_THREADS;
-	std::cout << i << " THREADS" << std::endl;
-	omp_set_dynamic(0);
-	omp_set_num_threads(i);
+	somGrid nodesGrid = somGrid(GRID_ROWS, GRID_COLS);
+	
+	std::cout << N_THREADS << " THREADS" << std::endl;
+	omp_set_num_threads(N_THREADS);
 	timer.tic();
 	nodesGrid.somTrain(nodesInput);
 	timer.toc();
-	std::cout << "END " << i << " THREADS" << std::endl;
-		std::cout << "==================================================" << std::endl;
-//	}
-//	std::cout << "NODESGRID AT t=100" << std::endl;
-	timer.printDeltaT();
+	
+	std::cout << "*************************************************" << std::endl;
+	std::cout << "***********************END***********************" << std::endl;
+	std::cout << "*************************************************" << std::endl;
+	std::cout << "STATS FOR " << N_THREADS << " THREADS" << std::endl;
+	std::cout << "WEIGHT_SIZE = " << WEIGHT_SIZE << std::endl;
+	std::cout << "EPOCHS = " << EPOCHS << std::endl;
+	std::cout << "GRID_GRID_ROWS = " << GRID_ROWS << std::endl;
+	std::cout << "GRID_GRID_COLS = " << GRID_COLS << std::endl;
+	std::cout << "N_INPUTS = " << N_INPUTS << std::endl;
+	
+	long double totExecTime = timer.getDeltaT();
+	std::cout << "TOTAL EXECUTION TIME [microseconds] = " << std::setprecision(15) << totExecTime << std::endl;
+	long double paralDeltaT = nodesGrid.getParalTime();
+	std::cout << "PARALLEL EXECUTION TIME [microseconds] = " << nodesGrid.getParalTime() << std::endl;
 	long double su = speedUp(nodesGrid.getParalTime(), timer.getDeltaT(), N_THREADS);
 	std::cout << "SPEED UP = " << su << std::endl;
 	long double effic = efficiency(nodesGrid.getParalTime(), timer.getDeltaT(), N_THREADS);
 	std::cout << "EFFICIENCY = " << effic << std::endl;
 	long double costo = cost(nodesGrid.getParalTime(), N_THREADS);
 	std::cout << "COST = " << costo << std::endl;
-	return 0;
 	
+	std::ofstream my_file;
+	std::string reportPath = "C:\\Users\\barba\\CLionProjects\\PPF_SOM\\report.txt";
+	my_file.open(reportPath, std::ios_base::app); // append instead of overwrite
+	my_file << N_THREADS << ","
+	        << WEIGHT_SIZE << ","
+	        << EPOCHS << ","
+	        << GRID_ROWS << ","
+	        << GRID_COLS << ","
+	        << N_INPUTS << ","
+	        << std::setprecision(15) << totExecTime << ","
+	        << std::setprecision(15) << paralDeltaT << ","
+	        << std::setprecision(15) << su << ","
+	        << effic << ","
+	        << costo << ",\n";
+	my_file.close();
+	
+	return 0;
 }
 #pragma clang diagnostic pop
