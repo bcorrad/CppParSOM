@@ -51,7 +51,7 @@ int main() {
 	std::cout << "TOTAL EXECUTION TIME [microseconds] = " << std::setprecision(15) << totExecTime << std::endl;
 	long double paralDeltaT = nodesGrid.getParalTime();
 	std::cout << "PARALLEL EXECUTION TIME [microseconds] = " << nodesGrid.getParalTime() << std::endl;
-	long double su = speedUp(nodesGrid.getParalTime(), timer.getDeltaT(), N_THREADS);
+	long double su = speedUp(nodesGrid.getParalTime(), timer.getDeltaT());
 	std::cout << "SPEED UP = " << su << std::endl;
 	long double effic = efficiency(nodesGrid.getParalTime(), timer.getDeltaT(), N_THREADS);
 	std::cout << "EFFICIENCY = " << effic << std::endl;

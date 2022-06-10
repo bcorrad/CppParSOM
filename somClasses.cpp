@@ -131,9 +131,9 @@ class somNode {
 			int n_per_thread = inputWeights_vd.size()/N_THREADS;
 			omp_set_num_threads(N_THREADS);
 			#pragma omp parallel for shared(distance) private(i) schedule(static, n_per_thread)
-				for(i = 0; i < weights_vd.size(); ++i) {
-					distance += (inputWeights_vd[i] - weights_vd[i]) * (inputWeights_vd[i] - weights_vd[i]);
-				}
+			for(i = 0; i < weights_vd.size(); ++i) {
+				distance += (inputWeights_vd[i] - weights_vd[i]) * (inputWeights_vd[i] - weights_vd[i]);
+			}
 			return sqrt(distance);
 		};
 		
@@ -473,10 +473,11 @@ class somGrid {
 					neighbExplorer(neighbRadius);
 					// Adjust weights
 					adjustWeights(inputnode, learnRate);
+					// Reset grid
+					resetGrid();
 				}
 				printGridStats();
 				paralTime += t_neighbExplorer.getDeltaT() + t_BMU.getDeltaT() + t_inputVsGrid.getDeltaT();
-				resetGrid();
 			}
 			return true;
 		};
