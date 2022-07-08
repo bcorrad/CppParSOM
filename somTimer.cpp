@@ -5,7 +5,6 @@ class somTimer {
 	private:
 		std::chrono::steady_clock::time_point itime_tp;
 		std::chrono::steady_clock::time_point ftime_d;
-		std::chrono::milliseconds exectime_lld;
 		std::string funcName_s;
 	public:
 		somTimer()= default;

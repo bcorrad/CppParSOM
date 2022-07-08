@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/barba/CLionProjects/PPF_SOM
+# Install script for directory: C:/Users/barba/CLionProjects/SOM_OMP
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/PPF_SOM")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/untitled")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/barba/CLionProjects/PPF_SOM/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/barba/CLionProjects/SOM_OMP/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
