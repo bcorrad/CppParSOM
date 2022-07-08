@@ -103,7 +103,8 @@
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				3
+				3,
+				4
 			]
 		}
 	],
@@ -130,6 +131,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "metrics.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "operators.h",
 			"sourceGroupIndex" : 1
 		}
 	],
