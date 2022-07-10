@@ -162,14 +162,15 @@ class somGridAdv {
 	private:
 	
 		int N_THREADS_I;
-		int somGRID_ROWS, somGRID_COLS;
+		int somGRID_ROWS, somGRID_COLS;     // Rows and columns of SOM grid
 		std::vector<somNodeAdv> nodes_vs;
 		somTimer t_neighbExplorer, t_inputVsGrid, t_adjustWeights, t_resetGrid;
-		int winNodeX_i, winNodeY_i;
-		double winNodeDist_d;
-		double somInitRadius;
-		double neighbRadius = (double) 1; // sigma0
-		double learnRate;
+		int winNodeX_i, winNodeY_i; // BMU coordinates
+		double winNodeDist_d;       // BMU distance from input node
+		double somInitRadius;   // Initial neighborhood radius
+		double neighbRadius = (double) 1;   // Updated neighborhood radius calculated as
+											// somInitRadius * exp(-(double)epoch/timeConst); (aka sigma0)
+		double learnRate;       // Initial learning rate
 	public:
 	
 		somGridAdv()= default;
