@@ -14,13 +14,13 @@
 
 class somNodeAdv {
 	private:
-		int N_THREADS_I;
-		int nodeId_i;
-		int posX_i, posY_i;
-		double dist_d;
-		bool isNeigh_b;
 	
+		int N_THREADS_I;    // Number of threads currently in use from main()
+		int posX_i, posY_i; // Node coordinates (x,y)
+		double dist_d;      // Euclidean distance variable
+		bool isNeigh_b;     // True if the node is in the neighborhood of BMU
 	public:
+	
 		std::vector<double> weights_vd;
 		
 		template <typename T>
@@ -33,13 +33,17 @@ class somNodeAdv {
 
 		somNodeAdv()=default;
 		
-		somNodeAdv(int N_THREADS, int nodeId, int nodeX, int nodeY, int weightsSize) :
-				N_THREADS_I(N_THREADS), nodeId_i(nodeId), posX_i(nodeX), posY_i(nodeY), dist_d(0),
+		somNodeAdv(int N_THREADS, int nodeX, int nodeY, int weightsSize) :
+				N_THREADS_I(N_THREADS), posX_i(nodeX), posY_i(nodeY), dist_d(0),
 				isNeigh_b(false) {
 			initWeights(weightsSize);
 		};
 		
 		void initWeights(int weightsSize) {
+			/**
+			 * Weights initialization function for a node.
+			 * A vector of length weightSize with random numbers.
+			 */
 			float randNum;
 			for(int i = 0; i < weightsSize; i++) {
 				randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
@@ -48,6 +52,10 @@ class somNodeAdv {
 		};
 	
 		double euclDistance(std::vector<double> inputWeights_vd) {
+			/**
+			 * Function which calculates Euclidean distance
+			 * between the current node and input node weights.
+			 */
 			auto distance = (double) 0;
 			int i;
 			int n_per_thread = inputWeights_vd.size()/N_THREADS_I;
@@ -75,10 +83,6 @@ class somNodeAdv {
 			return dist_d;
 		};
 		
-		int getId() const {
-			return nodeId_i;
-		};
-		
 		bool getIsNb() const {
 			return isNeigh_b;
 		};
@@ -96,75 +100,62 @@ class somNodeAdv {
 
 
 class inputNodesAdv {
-private:
-	std::vector<somNodeAdv> nodes_vs;
-	int N_THREADS_I;
-public:
+	private:
 	
-	explicit inputNodesAdv(int N_THREADS, int nInput, int WEIGHT_SIZE, bool fromFile = false){
+		int N_THREADS_I;
+		std::vector<somNodeAdv> nodes_vs;
+	public:
 		
-		N_THREADS_I = N_THREADS;
-		std::vector<double> content;
-		std::vector<double> row;
-		std::string line, word;
-		auto rowMax = (double) 0;
-		int id = 0;
-		if(fromFile) {
-			std::string fname = "C:\\Users\\barba\\CLionProjects\\SOM_OMP\\iris.csv";
-			std::fstream file (fname, std::ios::in);
-			if(file.is_open())
-			{
-				while(getline(file, line) && id < nInput)
+		explicit inputNodesAdv(int N_THREADS, int nInput, int WEIGHT_SIZE, bool fromFile = false){
+			
+			N_THREADS_I = N_THREADS;
+			std::vector<double> content;
+			std::vector<double> row;
+			std::string line, word;
+			auto rowMax = (double) 0;
+			int id = 0;
+			if(fromFile) {
+				std::string fname = "C:\\Users\\barba\\CLionProjects\\SOM_OMP\\iris.csv";
+				std::fstream file (fname, std::ios::in);
+				if(file.is_open())
 				{
-					row.clear();
-					std::stringstream str(line);
-					while(getline(str, word, ',')){
-						if(std::stod(word) > rowMax) rowMax = std::stod(word);
-						row.push_back(std::stod(word));
+					while(getline(file, line) && id < nInput)
+					{
+						row.clear();
+						std::stringstream str(line);
+						while(getline(str, word, ',')){
+							if(std::stod(word) > rowMax) rowMax = std::stod(word);
+							row.push_back(std::stod(word));
+						}
+						content = (row/rowMax);
+						
+						somNodeAdv n = somNodeAdv(N_THREADS_I,0,0,WEIGHT_SIZE);
+						n.weights_vd = content;
+						addNode(n);
+						id++;
 					}
-					content = (row/rowMax);
-					
-					somNodeAdv n = somNodeAdv(N_THREADS_I,id,0,0,WEIGHT_SIZE);
-					n.weights_vd = content;
+				}
+				else
+					std::cout << "Could not open the file" << std::endl;
+			}
+			else {
+				for(int i = 0; i < nInput; i++) {
+					somNodeAdv n = somNodeAdv(N_THREADS_I,0,0,WEIGHT_SIZE);
 					addNode(n);
 					id++;
 				}
 			}
-			else
-				std::cout << "Could not open the file" << std::endl;
 		}
-		else {
-			for(int i = 0; i < nInput; i++) {
-				somNodeAdv n = somNodeAdv(N_THREADS_I,
-				                    id,
-				                    0,
-				                    0,
-				                    WEIGHT_SIZE);
-				addNode(n);
-				id++;
-			}
-		}
-	};
 	
-	void addNode(somNodeAdv &node) {
-		nodes_vs.push_back(node);
-	};
-	
-	std::vector<somNodeAdv> getNodes(bool verbose = false) {
-		if(verbose) {
-			for(auto & nodes_v : nodes_vs) {
-				std::cout << "INPUT NODE ("
-				          << nodes_v.getId()
-				          << ") HAS WEIGHTS -> "
-				          << nodes_v.getWeights()
-				          << std::endl;
-			}
+		void addNode(somNodeAdv &node) {
+			nodes_vs.push_back(node);
 		}
 		
-		return nodes_vs;
-	};
-	
-	~inputNodesAdv()= default;
+		std::vector<somNodeAdv> getNodes() {
+			return nodes_vs;
+		}
+		
+		~inputNodesAdv()= default;
 };
 
 class somGridAdv {
@@ -173,7 +164,7 @@ class somGridAdv {
 		int N_THREADS_I;
 		int somGRID_ROWS, somGRID_COLS;
 		std::vector<somNodeAdv> nodes_vs;
-		somTimer t_neighbExplorer, t_inputVsGrid;
+		somTimer t_neighbExplorer, t_inputVsGrid, t_adjustWeights, t_resetGrid;
 		int winNodeX_i, winNodeY_i;
 		double winNodeDist_d;
 		double somInitRadius;
@@ -185,36 +176,28 @@ class somGridAdv {
 		
 		somGridAdv(int GRID_ROWS, int GRID_COLS, int N_THREADS, int WEIGHT_SIZE) {
 			N_THREADS_I = N_THREADS;
-			t_inputVsGrid = somTimer("inputVsGrid");
-			t_neighbExplorer = somTimer("neighbExplorer");
+			t_inputVsGrid.setFunc("inputVsGrid");
+			t_neighbExplorer.setFunc("neighbExplorer");
+			t_adjustWeights.setFunc("adjustWeights");
+			t_resetGrid.setFunc("resetGrid");
 			somGRID_ROWS = GRID_ROWS;
 			somGRID_COLS = GRID_COLS;
 			int id = 0;
 			for(int r = 0; r < GRID_ROWS; r++) {
 				for(int c = 0; c < GRID_COLS; c++) {
-					somNodeAdv n = somNodeAdv(N_THREADS_I,id,r,c, WEIGHT_SIZE);
+					somNodeAdv n = somNodeAdv(N_THREADS_I,r,c, WEIGHT_SIZE);
 					nodes_vs.push_back(n);
 					id++;
 				}
 			}
-		};
-		
-		std::vector<somNodeAdv> getNodes(bool verbose = false) {
-			if(verbose) {
-				for(auto & nodes_v : nodes_vs) {
-					std::cout << "NODE ("
-					          << nodes_v.getPosX() << ","
-					          << nodes_v.getPosY()
-					          << ") ID " << nodes_v.getId()
-					          <<" HAS WEIGHTS -> "
-					          << nodes_v.getWeights()
-					          << std::endl;
-				}
-			}
-			return nodes_vs;
-		};
+		}
 		
 		void inputVsGrid(somNodeAdv inputNode) {
+			/**
+			 * Function which compares the input node with each
+			 * node of the grid, calculates the euclidean distance
+			 * and finds BMU.
+			 */
 			t_inputVsGrid.tic();
 			omp_set_num_threads(N_THREADS_I);
 			int i;
@@ -227,33 +210,40 @@ class somGridAdv {
 			}
 			t_inputVsGrid.toc();
 			BMU();
-		};
+		}
 		
 		void BMU() {
+			/**
+			 * Function which finds the BMU as the minimum-distance node
+			 * from the input node.
+			 */
 			auto minDist = (double) 10000;
 			for(int i = 0; i < nodes_vs.size(); i++) {
 				if(nodes_vs[i].getDist() < minDist) {
-//					winNodeId_i = nodes_vs[i].getId();
 					winNodeX_i = nodes_vs[i].getPosX();
 					winNodeY_i = nodes_vs[i].getPosY();
 					winNodeDist_d = nodes_vs[i].getDist();
 					minDist = nodes_vs[i].getDist();
 				}
 			}
-		};
+		}
 		
 		double bmuEuclideanDist(somNodeAdv& node) {
 			double dist = pow((double) node.getPosX() - (double) winNodeX_i, 2) +
 			              pow((double) node.getPosY() - (double) winNodeY_i, 2);
 			return dist;
-		};
+		}
 		
 		void neighbExplorer(double radius) {
+			/**
+			 * Function which finds the neighborhood of the BMU
+			 * based on the current radius.
+			 */
 			double D;
 			int i;
+			t_neighbExplorer.tic();
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
-			t_neighbExplorer.tic();
 			#pragma omp parallel for private(i, D) schedule(static, n_per_thread)
 			for(i = 0; i < nodes_vs.size(); i++) {
 				D = bmuEuclideanDist(nodes_vs[i]);
@@ -261,11 +251,12 @@ class somGridAdv {
 					nodes_vs[i].setIsNb(true);
 			}
 			t_neighbExplorer.toc();
-		};
+		}
 		
 		void adjustWeights(somNodeAdv inputnode, double lr) {
 			int i;
 			double adjustRate;
+			t_adjustWeights.tic();
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
 			#pragma omp parallel for private(i, winNodeDist_d) schedule(static, n_per_thread)
@@ -277,25 +268,33 @@ class somGridAdv {
 					nodes_vs[i].weights_vd = miao;
 				}
 			}
-		};
+			t_adjustWeights.toc();
+		}
 		
 		void resetGrid() {
+			/**
+			 * Function which resets the neighbours of the grid.
+			 */
 			int i;
+			t_resetGrid.tic();
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
 			#pragma omp parallel for private(i) schedule(static, n_per_thread)
 			for(i = 0; i < nodes_vs.size(); i++){
 				nodes_vs[i].setIsNb(false);
 			}
-		};
+			t_resetGrid.toc();
+		}
 		
 		void printGridStats() {
 			t_inputVsGrid.printDeltaT();
 			t_neighbExplorer.printDeltaT();
-		};
+			t_adjustWeights.printDeltaT();
+			t_resetGrid.printDeltaT();
+		}
 		
 		bool somTrain(inputNodesAdv inputs, int epochs) {
-			/*
+			/**
 			1. create n x n map with random node std::vector values
 			2. loop while s < StepsMax times
 				compute what a "close" node means, based on s
@@ -322,7 +321,7 @@ class somGridAdv {
 				// Reduce the learning rate
 				learnRate = START_LR * exp(-(double)epoch/epochs);
 				
-				for(auto & inputnode : inputs.getNodes(false)){
+				for(auto & inputnode : inputs.getNodes()){
 					// Calculating the Best Matching Unit
 					inputVsGrid(inputnode);
 					// BMU neighborhood exploration
@@ -335,7 +334,7 @@ class somGridAdv {
 				printGridStats();
 			}
 			return true;
-		};
+		}
 		
 		~somGridAdv()= default;
 		

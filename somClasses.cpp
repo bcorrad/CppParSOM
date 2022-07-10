@@ -42,12 +42,16 @@ class somNode {
 
 		somNode()=default;
 		
-		somNode(int N_THREADS, int nodeX, int nodeY, int threadId, int weightsSize) :
+		somNode(int N_THREADS, int nodeX, int nodeY, int weightsSize) :
 				N_THREADS_I(N_THREADS), posX_i(nodeX), posY_i(nodeY), dist_d(0), isNeigh_b(false) {
 			initWeights(weightsSize);
 		};
 		
 		void initWeights(int weightsSize) {
+			/**
+			 * Weights initialization function for a node.
+			 * A vector of length weightSize with random numbers.
+			 */
 			float randNum;
 			for(int i = 0; i < weightsSize; i++) {
 				randNum = (float) FLOAT_MIN + (float)(rand()) / ((float)(RAND_MAX/(FLOAT_MAX - FLOAT_MIN)));
@@ -56,6 +60,10 @@ class somNode {
 		};
 	
 		double euclDistance(std::vector<double> inputWeights_vd) {
+			/**
+			 * Function which calculates Euclidean distance
+			 * between the current node and input node weights.
+			 */
 			auto distance = (double) 0;
 			int i;
 			omp_set_num_threads(N_THREADS_I);
@@ -128,7 +136,7 @@ class inputNodes {
 						}
 						content = (txtLine/txtLineMax);
 						
-						somNode n = somNode(N_THREADS_I,nLine,0,0,WEIGHT_SIZE);
+						somNode n = somNode(N_THREADS_I,0,0,WEIGHT_SIZE);
 						n.weights_vd = content;
 						addNode(n);
 						nLine++;
@@ -139,9 +147,8 @@ class inputNodes {
 			}
 			else {
 				for(int i = 0; i < nInput; i++) {
-					somNode n = somNode(N_THREADS_I,nLine,0,0,WEIGHT_SIZE);
+					somNode n = somNode(N_THREADS_I,0,0,WEIGHT_SIZE);
 					addNode(n);
-					nLine++;
 				}
 			}
 		};
@@ -164,7 +171,7 @@ class somGrid {
 		int N_THREADS_I;
 		int somGRID_ROWS, somGRID_COLS;
 		std::vector<somNode> nodes_vs;
-		somTimer t_neighbExplorer, t_inputVsGrid, t_adjustWeights;
+		somTimer t_neighbExplorer, t_inputVsGrid, t_adjustWeights, t_resetGrid;
 		int winNodeX_i, winNodeY_i;
 		double winNodeDist_d;
 		double somInitRadius;
@@ -176,25 +183,26 @@ class somGrid {
 		
 		somGrid(int GRID_ROWS, int GRID_COLS, int N_THREADS, int WEIGHT_SIZE) {
 			N_THREADS_I = N_THREADS;
-			t_inputVsGrid = somTimer("inputVsGrid");
-			t_neighbExplorer = somTimer("neighbExplorer");
+			t_inputVsGrid.setFunc("inputVsGrid");
+			t_neighbExplorer.setFunc("neighbExplorer");
+			t_adjustWeights.setFunc("adjustWeights");
+			t_resetGrid.setFunc("resetGrid");
 			somGRID_ROWS = GRID_ROWS;
 			somGRID_COLS = GRID_COLS;
-			int id = 0;
 			for(int r = 0; r < GRID_ROWS; r++) {
 				for(int c = 0; c < GRID_COLS; c++) {
-					somNode n = somNode(N_THREADS_I, id, r, c, WEIGHT_SIZE);
+					somNode n = somNode(N_THREADS_I, r, c, WEIGHT_SIZE);
 					nodes_vs.push_back(n);
-					id++;
 				}
 			}
-		};
-		
-		std::vector<somNode> getNodes(bool verbose = false) {
-			return nodes_vs;
-		};
+		}
 		
 		void inputVsGrid(somNode inputNode) {
+			/**
+			 * Function which compares the input node with each
+			 * node of the grid, calculates the euclidean distance
+			 * and finds BMU.
+			 */
 			t_inputVsGrid.tic();
 			omp_set_num_threads(N_THREADS_I);
 			int i;
@@ -205,9 +213,13 @@ class somGrid {
 			}
 			t_inputVsGrid.toc();
 			BMU();
-		};
+		}
 		
 		void BMU() {
+			/**
+			 * Function which finds the BMU as the minimum-distance node
+			 * from the input node.
+			 */
 			auto minDist = (double) 100000;
 			for(int i = 0; i < nodes_vs.size(); i++) {
 				if(nodes_vs[i].getDist() < minDist) {
@@ -217,15 +229,19 @@ class somGrid {
 					minDist = nodes_vs[i].getDist();
 				}
 			}
-		};
+		}
 	
 		double bmuEuclideanDist(somNode& node) {
 			double dist = pow((double) node.getPosX() - (double) winNodeX_i, 2) +
 					pow((double) node.getPosY() - (double) winNodeY_i, 2);
 			return dist;
-		};
+		}
 		
 		void neighbExplorer(double radius) {
+			/**
+			 * Function which finds the neighborhood of the BMU
+			 * based on the current radius.
+			 */
 			double D;
 			int i;
 			omp_set_num_threads(N_THREADS_I);
@@ -237,7 +253,7 @@ class somGrid {
 					nodes_vs[i].setIsNb(true);
 			}
 			t_neighbExplorer.toc();
-		};
+		}
 		
 		void adjustWeights(somNode inputnode, double lr) {
 			int i;
@@ -254,22 +270,28 @@ class somGrid {
 				}
 			}
 			t_adjustWeights.toc();
-		};
+		}
 	
 		void resetGrid() {
+			/**
+			 * Function which resets the neighbours of the grid.
+			 */
 			int i;
+			t_resetGrid.tic();
 			omp_set_num_threads(N_THREADS_I);
 			#pragma omp parallel for private(i)
 			for(i = 0; i < nodes_vs.size(); i++){
 				nodes_vs[i].setIsNb(false);
 			}
-		};
+			t_resetGrid.toc();
+		}
 		
 		void printGridStats() {
 			t_inputVsGrid.printDeltaT();
 			t_neighbExplorer.printDeltaT();
 			t_adjustWeights.printDeltaT();
-		};
+			t_resetGrid.printDeltaT();
+		}
 		
 		bool somTrain(inputNodes inputs, int epochs) {
 			/*
@@ -312,7 +334,7 @@ class somGrid {
 				printGridStats();
 			}
 			return true;
-		};
+		}
 		
 		~somGrid()= default;
 };

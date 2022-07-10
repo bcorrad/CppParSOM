@@ -35,7 +35,7 @@ std::string LANG;
 int main() {
 	
 	// setting parameters for experiments
-	std::vector<int> weight_size{10, 100};
+	std::vector<int> weight_size{10, 100, 1000};
 	std::vector<int> grid_rows{10, 100};
 	std::vector<int> grid_cols{10, 100};
 	std::vector<int> n_inputs{10, 100};
@@ -57,7 +57,7 @@ int main() {
 						
 						// initializing timer
 						long double totExecTime;
-						somTimer timer = somTimer();
+						somTimer timer = somTimer("somTrain");
 						
 						if(OMP_ADV == false){
 							LANG = "cpp";
@@ -85,6 +85,7 @@ int main() {
 							totExecTime = timer.getDeltaT();
 							T_.push_back(totExecTime);
 						}
+//						// Print results to log
 						std::cout << "*************************************************" << std::endl;
 						std::cout << "***********************END***********************" << std::endl;
 						std::cout << "*************************************************" << std::endl;
@@ -96,6 +97,7 @@ int main() {
 						std::cout << "N_INPUTS = " << N_INPUTS << std::endl;
 						std::cout << "TOTAL EXECUTION TIME [microseconds] = " << std::setprecision(15) << totExecTime << std::endl;
 					}
+					// Print results to report
 					report(T_, LANG, WEIGHT_SIZE, GRID_ROWS, GRID_COLS, N_INPUTS, EPOCHS);
 				}
 			}
