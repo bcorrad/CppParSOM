@@ -1,0 +1,287 @@
+weight_size{10};
+grid_rows{100};
+grid_cols{100};
+n_inputs{100};
+
+1 THREADS
+========= EPOCH 0/10 =========
+EXECUTION TIME inputVsGrid = 32456 [micros]
+EXECUTION TIME neighbExplorer = 700 [micros]
+EXECUTION TIME adjustWeights = 199 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+========= EPOCH 1/10 =========
+EXECUTION TIME inputVsGrid = 32642 [micros]
+EXECUTION TIME neighbExplorer = 700 [micros]
+EXECUTION TIME adjustWeights = 155 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+========= EPOCH 2/10 =========
+EXECUTION TIME inputVsGrid = 32324 [micros]
+EXECUTION TIME neighbExplorer = 671 [micros]
+EXECUTION TIME adjustWeights = 118 [micros]
+EXECUTION TIME resetGrid = 50 [micros]
+========= EPOCH 3/10 =========
+EXECUTION TIME inputVsGrid = 33208 [micros]
+EXECUTION TIME neighbExplorer = 703 [micros]
+EXECUTION TIME adjustWeights = 108 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+========= EPOCH 4/10 =========
+EXECUTION TIME inputVsGrid = 40106 [micros]
+EXECUTION TIME neighbExplorer = 1168 [micros]
+EXECUTION TIME adjustWeights = 176 [micros]
+EXECUTION TIME resetGrid = 76 [micros]
+========= EPOCH 5/10 =========
+EXECUTION TIME inputVsGrid = 33440 [micros]
+EXECUTION TIME neighbExplorer = 703 [micros]
+EXECUTION TIME adjustWeights = 67 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+========= EPOCH 6/10 =========
+EXECUTION TIME inputVsGrid = 32716 [micros]
+EXECUTION TIME neighbExplorer = 679 [micros]
+EXECUTION TIME adjustWeights = 52 [micros]
+EXECUTION TIME resetGrid = 69 [micros]
+========= EPOCH 7/10 =========
+EXECUTION TIME inputVsGrid = 33059 [micros]
+EXECUTION TIME neighbExplorer = 710 [micros]
+EXECUTION TIME adjustWeights = 50 [micros]
+EXECUTION TIME resetGrid = 57 [micros]
+========= EPOCH 8/10 =========
+EXECUTION TIME inputVsGrid = 33571 [micros]
+EXECUTION TIME neighbExplorer = 681 [micros]
+EXECUTION TIME adjustWeights = 55 [micros]
+EXECUTION TIME resetGrid = 51 [micros]
+========= EPOCH 9/10 =========
+EXECUTION TIME inputVsGrid = 33261 [micros]
+EXECUTION TIME neighbExplorer = 702 [micros]
+EXECUTION TIME adjustWeights = 41 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+*************************************************
+***********************END***********************
+*************************************************
+STATS FOR 1 THREADS
+WEIGHT_SIZE = 10
+EPOCHS = 10
+GRID_GRID_ROWS = 100
+GRID_GRID_COLS = 100
+N_INPUTS = 100
+TOTAL EXECUTION TIME [microseconds] = 36080548
+2 THREADS
+========= EPOCH 0/10 =========
+EXECUTION TIME inputVsGrid = 19864 [micros]
+EXECUTION TIME neighbExplorer = 367 [micros]
+EXECUTION TIME adjustWeights = 334 [micros]
+EXECUTION TIME resetGrid = 50 [micros]
+========= EPOCH 1/10 =========
+EXECUTION TIME inputVsGrid = 21963 [micros]
+EXECUTION TIME neighbExplorer = 529 [micros]
+EXECUTION TIME adjustWeights = 251 [micros]
+EXECUTION TIME resetGrid = 58 [micros]
+========= EPOCH 2/10 =========
+EXECUTION TIME inputVsGrid = 20080 [micros]
+EXECUTION TIME neighbExplorer = 379 [micros]
+EXECUTION TIME adjustWeights = 171 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+========= EPOCH 3/10 =========
+EXECUTION TIME inputVsGrid = 20968 [micros]
+EXECUTION TIME neighbExplorer = 543 [micros]
+EXECUTION TIME adjustWeights = 188 [micros]
+EXECUTION TIME resetGrid = 71 [micros]
+========= EPOCH 4/10 =========
+EXECUTION TIME inputVsGrid = 21589 [micros]
+EXECUTION TIME neighbExplorer = 727 [micros]
+EXECUTION TIME adjustWeights = 266 [micros]
+EXECUTION TIME resetGrid = 241 [micros]
+========= EPOCH 5/10 =========
+EXECUTION TIME inputVsGrid = 21393 [micros]
+EXECUTION TIME neighbExplorer = 388 [micros]
+EXECUTION TIME adjustWeights = 119 [micros]
+EXECUTION TIME resetGrid = 51 [micros]
+========= EPOCH 6/10 =========
+EXECUTION TIME inputVsGrid = 20552 [micros]
+EXECUTION TIME neighbExplorer = 359 [micros]
+EXECUTION TIME adjustWeights = 64 [micros]
+EXECUTION TIME resetGrid = 48 [micros]
+========= EPOCH 7/10 =========
+EXECUTION TIME inputVsGrid = 20053 [micros]
+EXECUTION TIME neighbExplorer = 372 [micros]
+EXECUTION TIME adjustWeights = 188 [micros]
+EXECUTION TIME resetGrid = 87 [micros]
+========= EPOCH 8/10 =========
+EXECUTION TIME inputVsGrid = 20435 [micros]
+EXECUTION TIME neighbExplorer = 470 [micros]
+EXECUTION TIME adjustWeights = 88 [micros]
+EXECUTION TIME resetGrid = 89 [micros]
+========= EPOCH 9/10 =========
+EXECUTION TIME inputVsGrid = 20157 [micros]
+EXECUTION TIME neighbExplorer = 419 [micros]
+EXECUTION TIME adjustWeights = 164 [micros]
+EXECUTION TIME resetGrid = 52 [micros]
+*************************************************
+***********************END***********************
+*************************************************
+STATS FOR 2 THREADS
+WEIGHT_SIZE = 10
+EPOCHS = 10
+GRID_GRID_ROWS = 100
+GRID_GRID_COLS = 100
+N_INPUTS = 100
+TOTAL EXECUTION TIME [microseconds] = 22669309
+3 THREADS
+========= EPOCH 0/10 =========
+EXECUTION TIME inputVsGrid = 19745 [micros]
+EXECUTION TIME neighbExplorer = 563 [micros]
+EXECUTION TIME adjustWeights = 410 [micros]
+EXECUTION TIME resetGrid = 83 [micros]
+========= EPOCH 1/10 =========
+EXECUTION TIME inputVsGrid = 17215 [micros]
+EXECUTION TIME neighbExplorer = 515 [micros]
+EXECUTION TIME adjustWeights = 239 [micros]
+EXECUTION TIME resetGrid = 93 [micros]
+========= EPOCH 2/10 =========
+EXECUTION TIME inputVsGrid = 19320 [micros]
+EXECUTION TIME neighbExplorer = 480 [micros]
+EXECUTION TIME adjustWeights = 160 [micros]
+EXECUTION TIME resetGrid = 64 [micros]
+========= EPOCH 3/10 =========
+EXECUTION TIME inputVsGrid = 17636 [micros]
+EXECUTION TIME neighbExplorer = 497 [micros]
+EXECUTION TIME adjustWeights = 122 [micros]
+EXECUTION TIME resetGrid = 105 [micros]
+========= EPOCH 4/10 =========
+EXECUTION TIME inputVsGrid = 19405 [micros]
+EXECUTION TIME neighbExplorer = 535 [micros]
+EXECUTION TIME adjustWeights = 145 [micros]
+EXECUTION TIME resetGrid = 96 [micros]
+========= EPOCH 5/10 =========
+EXECUTION TIME inputVsGrid = 18995 [micros]
+EXECUTION TIME neighbExplorer = 534 [micros]
+EXECUTION TIME adjustWeights = 101 [micros]
+EXECUTION TIME resetGrid = 126 [micros]
+========= EPOCH 6/10 =========
+EXECUTION TIME inputVsGrid = 19468 [micros]
+EXECUTION TIME neighbExplorer = 580 [micros]
+EXECUTION TIME adjustWeights = 74 [micros]
+EXECUTION TIME resetGrid = 109 [micros]
+========= EPOCH 7/10 =========
+EXECUTION TIME inputVsGrid = 18382 [micros]
+EXECUTION TIME neighbExplorer = 500 [micros]
+EXECUTION TIME adjustWeights = 87 [micros]
+EXECUTION TIME resetGrid = 141 [micros]
+========= EPOCH 8/10 =========
+EXECUTION TIME inputVsGrid = 19523 [micros]
+EXECUTION TIME neighbExplorer = 500 [micros]
+EXECUTION TIME adjustWeights = 63 [micros]
+EXECUTION TIME resetGrid = 44 [micros]
+========= EPOCH 9/10 =========
+EXECUTION TIME inputVsGrid = 19119 [micros]
+EXECUTION TIME neighbExplorer = 601 [micros]
+EXECUTION TIME adjustWeights = 68 [micros]
+EXECUTION TIME resetGrid = 62 [micros]
+*************************************************
+***********************END***********************
+*************************************************
+STATS FOR 3 THREADS
+WEIGHT_SIZE = 10
+EPOCHS = 10
+GRID_GRID_ROWS = 100
+GRID_GRID_COLS = 100
+N_INPUTS = 100
+TOTAL EXECUTION TIME [microseconds] = 19660688
+4 THREADS
+========= EPOCH 0/10 =========
+EXECUTION TIME inputVsGrid = 15081 [micros]
+EXECUTION TIME neighbExplorer = 388 [micros]
+EXECUTION TIME adjustWeights = 303 [micros]
+EXECUTION TIME resetGrid = 65 [micros]
+========= EPOCH 1/10 =========
+EXECUTION TIME inputVsGrid = 15931 [micros]
+EXECUTION TIME neighbExplorer = 413 [micros]
+EXECUTION TIME adjustWeights = 546 [micros]
+EXECUTION TIME resetGrid = 303 [micros]
+========= EPOCH 2/10 =========
+EXECUTION TIME inputVsGrid = 15255 [micros]
+EXECUTION TIME neighbExplorer = 378 [micros]
+EXECUTION TIME adjustWeights = 172 [micros]
+EXECUTION TIME resetGrid = 216 [micros]
+========= EPOCH 3/10 =========
+EXECUTION TIME inputVsGrid = 13905 [micros]
+EXECUTION TIME neighbExplorer = 387 [micros]
+EXECUTION TIME adjustWeights = 117 [micros]
+EXECUTION TIME resetGrid = 104 [micros]
+========= EPOCH 4/10 =========
+EXECUTION TIME inputVsGrid = 14885 [micros]
+EXECUTION TIME neighbExplorer = 368 [micros]
+EXECUTION TIME adjustWeights = 112 [micros]
+EXECUTION TIME resetGrid = 87 [micros]
+========= EPOCH 5/10 =========
+EXECUTION TIME inputVsGrid = 15765 [micros]
+EXECUTION TIME neighbExplorer = 392 [micros]
+EXECUTION TIME adjustWeights = 85 [micros]
+EXECUTION TIME resetGrid = 57 [micros]
+========= EPOCH 6/10 =========
+EXECUTION TIME inputVsGrid = 15272 [micros]
+EXECUTION TIME neighbExplorer = 388 [micros]
+EXECUTION TIME adjustWeights = 67 [micros]
+EXECUTION TIME resetGrid = 96 [micros]
+========= EPOCH 7/10 =========
+EXECUTION TIME inputVsGrid = 14910 [micros]
+EXECUTION TIME neighbExplorer = 431 [micros]
+EXECUTION TIME adjustWeights = 130 [micros]
+EXECUTION TIME resetGrid = 128 [micros]
+========= EPOCH 8/10 =========
+EXECUTION TIME inputVsGrid = 14897 [micros]
+EXECUTION TIME neighbExplorer = 385 [micros]
+EXECUTION TIME adjustWeights = 57 [micros]
+EXECUTION TIME resetGrid = 57 [micros]
+========= EPOCH 9/10 =========
+EXECUTION TIME inputVsGrid = 15865 [micros]
+EXECUTION TIME neighbExplorer = 396 [micros]
+EXECUTION TIME adjustWeights = 78 [micros]
+EXECUTION TIME resetGrid = 165 [micros]
+*************************************************
+***********************END***********************
+*************************************************
+STATS FOR 4 THREADS
+WEIGHT_SIZE = 10
+EPOCHS = 10
+GRID_GRID_ROWS = 100
+GRID_GRID_COLS = 100
+N_INPUTS = 100
+TOTAL EXECUTION TIME [microseconds] = 16276719
+  /\_/\
+ ( o.o )
+  > ^ <
+
+1 THREADS
+EXECUTION TIME [microseconds] = 36080548
+SPEED UP = 1
+EFFICIENCY = 1
+COST = 36080548
+  /\_/\
+ ( o.o )
+  > ^ <
+
+2 THREADS
+EXECUTION TIME [microseconds] = 22669309
+SPEED UP = 1.59160334353376
+EFFICIENCY = 0.795801671766881
+COST = 45338618
+  /\_/\
+ ( o.o )
+  > ^ <
+
+3 THREADS
+EXECUTION TIME [microseconds] = 19660688
+SPEED UP = 1.83516202484877
+EFFICIENCY = 0.611720674949591
+COST = 58982064
+  /\_/\
+ ( o.o )
+  > ^ <
+
+4 THREADS
+EXECUTION TIME [microseconds] = 16276719
+SPEED UP = 2.21669662049213
+EFFICIENCY = 0.554174155123032
+COST = 65106876
+
+Process finished with exit code 0

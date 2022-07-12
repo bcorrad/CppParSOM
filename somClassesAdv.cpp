@@ -60,7 +60,7 @@ class somNodeAdv {
 			int i;
 			int n_per_thread = inputWeights_vd.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
-			#pragma omp parallel for reduction(+ : distance) private(i) schedule(static, n_per_thread)
+			#pragma omp parallel for reduction(+ : distance) private(i) schedule(dynamic, n_per_thread)
 			for(i = 0; i < weights_vd.size(); ++i) {
 				 distance += (inputWeights_vd[i] - weights_vd[i]) * (inputWeights_vd[i] - weights_vd[i]);
 			}
@@ -204,7 +204,7 @@ class somGridAdv {
 			int i;
 			double dist;
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
-			#pragma omp parallel for private(i, dist) schedule(static, n_per_thread)
+			#pragma omp parallel for private(i, dist) schedule(dynamic, n_per_thread)
 			for(int i = 0; i < nodes_vs.size(); i++){
 				dist = nodes_vs[i].euclDistance(inputNode.getWeights());
 				nodes_vs[i].setDist(dist);
@@ -245,7 +245,7 @@ class somGridAdv {
 			t_neighbExplorer.tic();
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
-			#pragma omp parallel for private(i, D) schedule(static, n_per_thread)
+			#pragma omp parallel for private(i, D) schedule(dynamic, n_per_thread)
 			for(i = 0; i < nodes_vs.size(); i++) {
 				D = bmuEuclideanDist(nodes_vs[i]);
 				if(D < radius)
@@ -260,7 +260,7 @@ class somGridAdv {
 			t_adjustWeights.tic();
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
-			#pragma omp parallel for private(i, winNodeDist_d) schedule(static, n_per_thread)
+			#pragma omp parallel for private(i, winNodeDist_d) schedule(dynamic, n_per_thread)
 			for(i = 0; i < nodes_vs.size(); i++) {
 				if(nodes_vs[i].getIsNb()) {
 					// Calculate by how much its weights are adjusted
@@ -280,7 +280,7 @@ class somGridAdv {
 			t_resetGrid.tic();
 			int n_per_thread = nodes_vs.size()/N_THREADS_I;
 			omp_set_num_threads(N_THREADS_I);
-			#pragma omp parallel for private(i) schedule(static, n_per_thread)
+			#pragma omp parallel for private(i) schedule(dynamic, n_per_thread)
 			for(i = 0; i < nodes_vs.size(); i++){
 				nodes_vs[i].setIsNb(false);
 			}
