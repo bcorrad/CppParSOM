@@ -218,7 +218,7 @@ class somGridAdv {
 			 * Function which finds the BMU as the minimum-distance node
 			 * from the input node.
 			 */
-			auto minDist = (double) 10000;
+			auto minDist = (double) 10000; // implementazione orrenda, correggerla se c'è tempo
 			for(int i = 0; i < nodes_vs.size(); i++) {
 				if(nodes_vs[i].getDist() < minDist) {
 					winNodeX_i = nodes_vs[i].getPosX();

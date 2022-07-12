@@ -17,14 +17,35 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\report_cpp_adv.csv">
+        <entry key="\reports - Copia\report_cpp.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\reports\report_cpp_adv.csv">
+        <entry key="\reports - Copia\report_cpp_adv_dynamic.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\reports - Copia\report_cpp_adv_static.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\reports\report_cpp.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\reports\report_cpp_adv_dynamic.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
